@@ -5,13 +5,11 @@ import EntryBar from './entry_bar';
 import Notes from './notes';
 import Immutable from 'immutable';
 
-
-// example class based component (smart component)
 class App extends Component {
   constructor(props) {
     super(props);
 
-    // init component state here
+    // init component state
     this.state = {
       notes: Immutable.Map(),
       zIndexCount: 0,
@@ -22,6 +20,7 @@ class App extends Component {
     this.writeNote = this.writeNote.bind(this);
   }
 
+  // create a new note
   addNote(input) {
     const id = Math.random().toString();
     const colorList = ['white', 'aqua', 'olive', 'fuchsia', 'gray', 'orange'];
@@ -42,13 +41,15 @@ class App extends Component {
     this.setState(newState);
   }
 
-  deleteNote(input) {
+  // delete the note
+  deleteNote(id) {
     const newState = {
-      notes: this.state.notes.delete(input),
+      notes: this.state.notes.delete(id),
     };
     this.setState(newState);
   }
 
+  // update the note in the notes map
   writeNote(id, newNote, updateZIndex) {
     let addZIndex = 0;
     if (updateZIndex) {
@@ -61,6 +62,7 @@ class App extends Component {
     this.setState(newState);
   }
 
+  // render function
   render() {
     const notesList = this.state.notes.entrySeq().map(([id, note]) => {
       return (

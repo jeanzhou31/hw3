@@ -1,8 +1,8 @@
+// the note component
 
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import marked from 'marked';
-
 
 class Notes extends Component {
   constructor(props) {
@@ -29,9 +29,13 @@ class Notes extends Component {
   onInputChange(event) {
     this.setState({ text: event.target.value });
   }
+
+  // delete note
   onTrashClick(event) {
     this.props.deleteNote(this.state.id);
   }
+
+  // edit note
   onEditClick(event) {
     if (this.state.isEdit) {
       this.setState({ isEdit: false });
@@ -45,11 +49,13 @@ class Notes extends Component {
     }
   }
 
+  // update zIndex when drag begins
   onStartDrag() {
     this.setState({ zIndex: this.props.zIndexCount + 1 });
     this.props.writeNote(this.state.id, this.state, true);
   }
 
+  // update position as drag continues
   onDrag(e, ui) {
     const newState = {
       x: ui.x,
@@ -58,10 +64,12 @@ class Notes extends Component {
     this.setState(newState);
   }
 
+  // update note in the whole notes map when drag ends
   onStopDrag() {
     this.props.writeNote(this.state.id, this.state, false);
   }
 
+  // undo text
   onUndoClick() {
     if (this.state.prevNote != null) {
       this.setState(this.state.prevNote);
@@ -69,6 +77,7 @@ class Notes extends Component {
     }
   }
 
+  // render text box
   renderText() {
     if (this.state.isEdit) {
       return <textarea className="text-box" onChange={this.onInputChange} value={this.state.text} />;
@@ -77,6 +86,7 @@ class Notes extends Component {
     }
   }
 
+  // render edit icon
   renderEdit() {
     if (this.state.isEdit) {
       return <i className="fa fa-check" aria-hidden="true" onClick={this.onEditClick}></i>;
@@ -85,6 +95,7 @@ class Notes extends Component {
     }
   }
 
+  // render function
   render() {
     return (
       <Draggable
