@@ -10,7 +10,7 @@ I used React to create an application that can create, edit, and delete notes. I
 
 I completed all the requirements of the assignment. The app can add notes to the board, and the notes are draggable, editable, and deletable.
 
-For extra credit, I made the notes pretty, have them snap to grid, deal with zIndex sorting, have resizable notes (drag bottom right corner), and implemented an undo feature. To make the notes pretty, I customized with fonts and have them generate in random colors based on a list of six pre-selected colors. Please create many notes to test this, on the chance that the same color is generated a few times in a row. 
+For extra credit, I made the notes pretty, have them snap to grid, deal with zIndex sorting, have resizable notes (drag bottom right corner), and implemented an undo feature. To make the notes pretty, I customized with fonts and have notes width resize to accomodate longer title lengths. Also, I have notes generate in random colors based on a list of six pre-selected colors. Please create many notes to test this, on the chance that the same color is generated a few times in a row. 
 
 Another thing I spent a lot of time trying to do was add an image as the background of the page. I wanted to have a corkboard background, but there was an issue with SASS reading the image file. Every time, I would receive this error: 
 
