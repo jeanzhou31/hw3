@@ -7,88 +7,62 @@ import marked from 'marked';
 class Notes extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      id: this.props.id,
-      title: this.props.note.title,
-      text: '',
-      x: this.props.note.x,
-      y: this.props.note.y,
-      zIndex: this.props.note.zIndex,
-      isEdit: false,
-      color: this.props.note.color,
-      prevNote: null,
-    };
     this.onInputChange = this.onInputChange.bind(this);
     this.onTrashClick = this.onTrashClick.bind(this);
     this.onEditClick = this.onEditClick.bind(this);
     this.onUndoClick = this.onUndoClick.bind(this);
     this.onStartDrag = this.onStartDrag.bind(this);
     this.onDrag = this.onDrag.bind(this);
-    this.onStopDrag = this.onStopDrag.bind(this);
+    this.render = this.render.bind(this);
+    this.renderEdit = this.renderEdit.bind(this);
+    this.renderText = this.renderText.bind(this);
   }
   onInputChange(event) {
-    this.setState({ text: event.target.value });
+    this.props.changeText(this.props.id, event.target.value);
   }
 
   // delete note
   onTrashClick(event) {
-    this.props.deleteNote(this.state.id);
+    this.props.removeNote(this.props.id);
   }
 
   // edit note
   onEditClick(event) {
-    if (this.state.isEdit) {
-      this.setState({ isEdit: false });
-      this.props.writeNote(this.state.id, this.state, false);
-    } else {
-      this.setState({
-        isEdit: true,
-        prevNote: this.state,
-      });
-      this.props.writeNote(this.state.id, this.state, false);
+    if (!this.props.note.isEdit) {
+      this.props.changePrev(this.props.id, this.props.note);
     }
+    this.props.changeEdit(this.props.id, !this.props.note.isEdit);
   }
 
   // update zIndex when drag begins
   onStartDrag() {
-    this.setState({ zIndex: this.props.zIndexCount + 1 });
-    this.props.writeNote(this.state.id, this.state, true);
+    this.props.changeZ(this.props.id);
   }
 
   // update position as drag continues
   onDrag(e, ui) {
-    const newState = {
-      x: ui.x,
-      y: ui.y,
-    };
-    this.setState(newState);
-  }
-
-  // update note in the whole notes map when drag ends
-  onStopDrag() {
-    this.props.writeNote(this.state.id, this.state, false);
+    this.props.changePosition(this.props.id, ui.x, ui.y);
   }
 
   // undo text
   onUndoClick() {
-    if (this.state.prevNote != null) {
-      this.setState(this.state.prevNote);
-      this.props.writeNote(this.state.id, this.state, false);
+    if (this.props.note.prevNote !== 'end') {
+      this.props.undoNote(this.props.id, this.props.note.prevNote.text, this.props.note.prevNote.prevNote);
     }
   }
 
   // render text box
   renderText() {
-    if (this.state.isEdit) {
-      return <textarea className="text-box" onChange={this.onInputChange} value={this.state.text} />;
+    if (this.props.note.isEdit) {
+      return <textarea className="text-box" onChange={this.onInputChange} value={this.props.note.text} />;
     } else {
-      return <div className="noteBody" dangerouslySetInnerHTML={{ __html: marked(this.state.text) }} />;
+      return <div className="noteBody" dangerouslySetInnerHTML={{ __html: marked(this.props.note.text) }} />;
     }
   }
 
   // render edit icon
   renderEdit() {
-    if (this.state.isEdit) {
+    if (this.props.note.isEdit) {
       return <i className="fa fa-check" aria-hidden="true" onClick={this.onEditClick}></i>;
     } else {
       return <i className="fa fa-pencil" aria-hidden="true" onClick={this.onEditClick}></i>;
@@ -101,16 +75,16 @@ class Notes extends Component {
       <Draggable
         handle=".note-mover"
         grid={[75, 75]}
-        defaultPosition={{ x: 0, y: 0 }}
+        defaultPosition={{ x: this.props.note.x, y: this.props.note.y }}
         position={null}
         onStart={this.onStartDrag}
         onDrag={this.onDrag}
         onStop={this.onStopDrag}
       >
-        <div className="note-box" style={{ backgroundColor: this.state.color, zIndex: this.state.zIndex }} >
+        <div className="note-box" style={{ backgroundColor: this.props.note.color, zIndex: this.props.note.zIndex }} >
           <nav className="nav-container">
             <div className="nav-item">
-              {this.state.title}
+              {this.props.note.title}
             </div>
             <div className="nav-item">
               <i className="fa fa-trash" aria-hidden="true" onClick={this.onTrashClick}></i>

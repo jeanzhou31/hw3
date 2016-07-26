@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import EntryBar from './entry_bar';
 import Notes from './notes';
 import Immutable from 'immutable';
+import firebase from '../firebase';
 
 class App extends Component {
   constructor(props) {
@@ -14,15 +15,32 @@ class App extends Component {
       notes: Immutable.Map(),
       zIndexCount: 0,
     };
-
+    this.changeZ = this.changeZ.bind(this);
     this.addNote = this.addNote.bind(this);
-    this.deleteNote = this.deleteNote.bind(this);
-    this.writeNote = this.writeNote.bind(this);
+  }
+
+  componentDidMount() {
+    firebase.fetchNotes((snapshot) => {
+      if (snapshot.val() && this.state.zIndexCount === 0) {
+        // get max zindex
+        firebase.fetchZIndex((Zsnapshot) => {
+          this.setState({
+            zIndexCount: Zsnapshot.val().id,
+          });
+        });
+      }
+      // get notes
+      this.setState({
+        notes: Immutable.Map(snapshot.val()),
+      });
+    });
   }
 
   // create a new note
   addNote(input) {
-    const id = Math.random().toString();
+    this.setState({
+      zIndexCount: this.state.zIndexCount + 1,
+    });
     const colorList = ['white', 'aqua', 'olive', 'fuchsia', 'gray', 'orange'];
     const index = Math.floor(Math.random() * 6);
     const randomColor = colorList[index];
@@ -32,34 +50,51 @@ class App extends Component {
         text: '',
         x: 200,
         y: 100,
-        zIndex: 0,
+        zIndex: this.state.zIndexCount,
+        isEdit: false,
         color: randomColor,
+        prevNote: 'end',
       };
-    const newState = {
-      notes: this.state.notes.set(id, newNote),
-    };
-    this.setState(newState);
+    firebase.updateZIndex(this.state.zIndexCount);
+    firebase.addNote(newNote);
   }
 
   // delete the note
-  deleteNote(id) {
-    const newState = {
-      notes: this.state.notes.delete(id),
-    };
-    this.setState(newState);
+  removeNote(id) {
+    firebase.removeNote(id);
   }
 
-  // update the note in the notes map
-  writeNote(id, newNote, updateZIndex) {
-    let addZIndex = 0;
-    if (updateZIndex) {
-      addZIndex = 1;
-    }
-    const newState = {
-      notes: this.state.notes.update(id, (note) => { return Object.assign({}, note, newNote); }),
-      zIndexCount: this.state.zIndexCount + addZIndex,
-    };
-    this.setState(newState);
+  // update the position
+  changePosition(id, x, y) {
+    firebase.changePosition(id, x, y);
+  }
+
+  // update the edit status
+  changeEdit(id, isEdit) {
+    firebase.changeEdit(id, isEdit);
+  }
+
+  // update the text
+  changeText(id, text) {
+    firebase.changeText(id, text);
+  }
+
+  // update zindex
+  changeZ(id) {
+    firebase.changeZ(id, this.state.zIndexCount + 1);
+    firebase.updateZIndex(this.state.zIndexCount + 1);
+    this.setState({ zIndexCount: this.state.zIndexCount + 1 });
+  }
+
+  // update previous note
+  changePrev(id, prevNote) {
+    firebase.changePrev(id, prevNote);
+  }
+
+  // undo note text
+  undoNote(id, text, prevNote) {
+    firebase.changeText(id, text);
+    firebase.changePrev(id, prevNote);
   }
 
   // render function
@@ -70,9 +105,14 @@ class App extends Component {
           id={id}
           key={id}
           note={note}
-          deleteNote={this.deleteNote}
-          writeNote={this.writeNote}
-          zIndexCount={this.state.zIndexCount}
+          zIndex={this.state.zIndexCount}
+          removeNote={this.removeNote}
+          changePosition={this.changePosition}
+          changeEdit={this.changeEdit}
+          changeText={this.changeText}
+          changeZ={this.changeZ}
+          changePrev={this.changePrev}
+          undoNote={this.undoNote}
         />
       );
     });
