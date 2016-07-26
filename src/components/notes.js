@@ -76,7 +76,7 @@ class Notes extends Component {
         handle=".note-mover"
         grid={[75, 75]}
         defaultPosition={{ x: this.props.note.x, y: this.props.note.y }}
-        position={null}
+        position={{ x: this.props.note.x, y: this.props.note.y }}
         onStart={this.onStartDrag}
         onDrag={this.onDrag}
         onStop={this.onStopDrag}
