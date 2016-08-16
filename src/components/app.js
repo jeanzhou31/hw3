@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import io from 'socket.io-client';
+const socketserver = 'http://localhost:9090';
 
 // import Welcome from './welcome';
 import EntryBar from './entry_bar';
@@ -17,6 +19,12 @@ class App extends Component {
     };
     this.changeZ = this.changeZ.bind(this);
     this.addNote = this.addNote.bind(this);
+
+    this.socket = io(socketserver);
+    this.socket.on('connect', () => { console.log('socket.io connected'); });
+    this.socket.on('disconnect', () => { console.log('socket.io disconnected'); });
+    this.socket.on('reconnect', () => { console.log('socket.io reconnected'); });
+    this.socket.on('error', (error) => { console.log(error); });
   }
 
   componentDidMount() {
